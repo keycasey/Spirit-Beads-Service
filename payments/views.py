@@ -11,9 +11,9 @@ from decimal import Decimal
 
 @api_view(["POST"])
 def create_checkout_session(request):
-    items = request.data.get("items")
+    cart_items = request.data.get("items")
 
-    if not items:
+    if not cart_items:
         return Response({"error": "No items provided"}, status=400)
 
     order_id = uuid.uuid4()
@@ -21,27 +21,19 @@ def create_checkout_session(request):
     line_items = []
     total_amount = 0
 
-    for item in items:
-        # Get the product to verify it exists and get current price
-        try:
-            product = Product.objects.get(id=item["id"])
-        except Product.DoesNotExist:
-            return Response({"error": f"Product with id {item['id']} not found"}, status=400)
+    for cart_item in cart_items:
+        product = Product.objects.get(id=cart_item["product_id"])
         
-        # Convert product price from decimal to cents for Stripe
-        price_cents = int(product.price * Decimal(100))
-        
+        # Guard: ensure product has Stripe Price ID
+        if not product.stripe_price_id:
+            raise ValueError(f"Product {product.name} missing Stripe price ID")
+
         line_items.append({
-            "price_data": {
-                "currency": "usd",
-                "product_data": {
-                    "name": product.name,
-                },
-                "unit_amount": price_cents,
-            },
-            "quantity": item["quantity"],
+            "price": product.stripe_price_id,
+            "quantity": cart_item["quantity"],
         })
-        total_amount += price_cents * item["quantity"]
+
+        total_amount += product.price * cart_item["quantity"]
 
     session = stripe.checkout.sessions.create(
         mode="payment",
@@ -62,15 +54,14 @@ def create_checkout_session(request):
         status="pending",
     )
 
-    for item in items:
-        product = Product.objects.get(id=item["id"])
-        price_cents = int(product.price * Decimal(100))
+    for cart_item in cart_items:
+        product = Product.objects.get(id=cart_item["product_id"])
         
         OrderItem.objects.create(
             order=order,
             product=product,
-            unit_price=price_cents,
-            quantity=item["quantity"],
+            unit_price=product.price,
+            quantity=cart_item["quantity"],
         )
 
     return Response({"checkout_url": session.url})

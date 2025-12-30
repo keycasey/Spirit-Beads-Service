@@ -1,5 +1,7 @@
 from django.contrib import admin
 from .models import Product, Category, ProductImage
+from .services.stripe_sync import ensure_stripe_product_and_price
+from .forms import ProductAdminForm
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
@@ -14,11 +16,26 @@ class ProductImageInline(admin.TabularInline):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ['name', 'get_pattern_display', 'price', 'inventory_count', 'is_sold_out', 'is_active']
+    form = ProductAdminForm
+    list_display = (
+        "name",
+        "price_decimal",
+        "currency",
+        "stripe_price_id",
+        "is_active",
+    )
+    actions = ["sync_prices_to_stripe"]
+
+    @admin.action(description="Create / update Stripe Price ID")
+    def sync_prices_to_stripe(self, request, queryset):
+        for product in queryset:
+            ensure_stripe_product_and_price(product)
+        self.message_user(request, f"Successfully synced {queryset.count()} products to Stripe")
+    
     list_filter = ['pattern', 'is_sold_out', 'is_active', 'created_at']
     search_fields = ['name', 'custom_pattern']
     prepopulated_fields = {'slug': ('name',)}
-    readonly_fields = ['created_at', 'updated_at']
+    readonly_fields = ['created_at', 'updated_at', 'stripe_product_id', 'stripe_price_id']
     inlines = [ProductImageInline]
     
     class Media:
@@ -32,7 +49,12 @@ class ProductAdmin(admin.ModelAdmin):
             'fields': ('name', 'slug', 'pattern', 'custom_pattern', 'description')
         }),
         ('Pricing & Inventory', {
-            'fields': ('price', 'inventory_count', 'is_sold_out', 'is_active')
+            'fields': ('price', 'currency', 'inventory_count', 'is_sold_out', 'is_active'),
+            'description': 'Enter price in dollars (e.g., 45.99). Will be stored as cents for Stripe.'
+        }),
+        ('Stripe Integration', {
+            'fields': ('stripe_product_id', 'stripe_price_id'),
+            'classes': ('collapse',)
         }),
         ('Shipping', {
             'fields': ('weight_ounces',)

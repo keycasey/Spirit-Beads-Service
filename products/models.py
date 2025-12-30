@@ -27,15 +27,33 @@ class Product(models.Model):
         ('custom', 'Custom Pattern'),
     ]
 
-    name = models.CharField(max_length=200)
+    id = models.CharField(primary_key=True, max_length=100)
+    name = models.CharField(max_length=255)
     slug = models.SlugField(max_length=200, unique=True)
     pattern = models.CharField(max_length=50, choices=PATTERN_CHOICES)
     custom_pattern = models.CharField(max_length=100, blank=True, help_text="Enter custom pattern name")
-    price = models.DecimalField(
-        max_digits=10, 
-        decimal_places=2,
-        validators=[MinValueValidator(Decimal('0.01'))]
+    
+    price = models.IntegerField(
+        help_text="Price in cents (admin editable)"
     )
+    currency = models.CharField(
+        max_length=10,
+        default="usd"
+    )
+    
+    stripe_product_id = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        editable=False
+    )
+    stripe_price_id = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        editable=False
+    )
+    
     description = models.TextField(blank=True)
     image = models.ImageField(upload_to='products/', blank=True, null=True)
     is_sold_out = models.BooleanField(default=False)
@@ -67,6 +85,11 @@ class Product(models.Model):
     @property
     def is_in_stock(self):
         return not self.is_sold_out and self.inventory_count > 0
+
+    @property
+    def price_decimal(self):
+        """Convert cents to decimal for display purposes"""
+        return Decimal(self.price) / Decimal(100)
 
 class ProductImage(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images')

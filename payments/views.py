@@ -1,5 +1,6 @@
 import uuid
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
@@ -9,13 +10,11 @@ from orders.models import Order, OrderItem
 from products.models import Product
 from decimal import Decimal
 import os
-from dotenv import load_dotenv
-
-# Ensure environment variables are loaded at module level
-load_dotenv()
 
 @csrf_exempt
 @api_view(["POST"])
+@authentication_classes([])
+@permission_classes([AllowAny])
 def create_checkout_session(request):
     cart_items = request.data.get("items")
 
@@ -122,16 +121,27 @@ def create_checkout_session(request):
             "quantity": quantity,
         })
 
-    session = stripe.checkout.Session.create(
-        mode="payment",
-        payment_method_types=["card"],
-        line_items=line_items,
-        success_url=f"{settings.FRONTEND_URL}/success?session_id={{CHECKOUT_SESSION_ID}}",
-        cancel_url=f"{settings.FRONTEND_URL}/cancel",
-        shipping_address_collection={
-            "allowed_countries": ["US"]
-        },
-    )
+    try:
+        session = stripe.checkout.Session.create(
+            mode="payment",
+            payment_method_types=["card"],
+            line_items=line_items,
+            success_url=f"{settings.FRONTEND_URL}/success?session_id={{CHECKOUT_SESSION_ID}}",
+            cancel_url=f"{settings.FRONTEND_URL}/cancel",
+            shipping_address_collection={
+                "allowed_countries": ["US"]
+            },
+        )
+    except stripe.error.InvalidRequestError as e:
+        # Common cause: using a test-mode price ID with a live-mode secret key (or vice versa)
+        return Response(
+            {
+                "error": "payment_setup_error",
+                "message": str(e),
+                "hint": "If this mentions 'No such price', your product.stripe_price_id in the database likely belongs to Stripe Test mode while the backend is using a Live secret key (or vice versa).",
+            },
+            status=400,
+        )
 
     order = Order.objects.create(
         id=order_id,
@@ -155,6 +165,9 @@ def create_checkout_session(request):
     return Response({"checkout_url": session.url})
 
 @csrf_exempt
+@api_view(["POST"])
+@authentication_classes([])
+@permission_classes([AllowAny])
 def stripe_webhook(request):
     payload = request.body
     sig_header = request.META.get("HTTP_STRIPE_SIGNATURE")

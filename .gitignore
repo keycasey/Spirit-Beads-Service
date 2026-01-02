@@ -31,3 +31,9 @@ logs/
 # OS
 .DS_Store
 Thumbs.db
+
+# Local environment/config
+.env
+
+# Local database
+db.sqlite3

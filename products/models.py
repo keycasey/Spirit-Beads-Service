@@ -104,6 +104,10 @@ class Product(models.Model):
 
     def save(self, *args, **kwargs):
         """Override save to sync price changes to Stripe"""
+        # Skip Stripe sync if we're already syncing
+        if getattr(self, '_stripe_syncing', False):
+            return super().save(*args, **kwargs)
+
         is_new = self.pk is None
         old_price = None
         

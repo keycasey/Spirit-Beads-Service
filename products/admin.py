@@ -34,9 +34,24 @@ class ProductAdmin(admin.ModelAdmin):
 
     @admin.action(description="Create / update Stripe Price ID")
     def sync_prices_to_stripe(self, request, queryset):
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.info(f"Starting bulk Stripe sync for {queryset.count()} products")
+        success = 0
+        failed = 0
         for product in queryset:
-            ensure_stripe_product_and_price(product)
-        self.message_user(request, f"Successfully synced {queryset.count()} products to Stripe")
+            try:
+                logger.info(f"Syncing product {product.id} ({product.name})")
+                result = ensure_stripe_product_and_price(product)
+                if result:
+                    logger.info(f"Successfully synced product {product.id}: new price_id={result.id}")
+                    success += 1
+                else:
+                    logger.warning(f"Skipped product {product.id} (already syncing or no action needed)")
+            except Exception as e:
+                logger.exception(f"Failed to sync product {product.id} to Stripe: {e}")
+                failed += 1
+        self.message_user(request, f"Stripe sync complete: {success} succeeded, {failed} failed. Check logs for details.")
     
     list_filter = ['pattern', 'is_sold_out', 'is_active', 'created_at']
     search_fields = ['name', 'custom_pattern']

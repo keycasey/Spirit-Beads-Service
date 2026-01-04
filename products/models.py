@@ -66,7 +66,8 @@ class Product(models.Model):
     )
     
     description = models.TextField(blank=True)
-    image = models.ImageField(upload_to='products/', blank=True, null=True)
+    primary_image = models.ImageField(upload_to='products/', blank=True, null=True)
+    secondary_image = models.ImageField(upload_to='products/', blank=True, null=True)
     is_sold_out = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     inventory_count = models.PositiveIntegerField(default=1)

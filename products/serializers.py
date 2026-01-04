@@ -20,7 +20,7 @@ class ProductSerializer(serializers.ModelSerializer):
         model = Product
         fields = [
             'id', 'name', 'slug', 'pattern', 'custom_pattern', 'pattern_display', 
-            'price', 'description', 'is_sold_out', 'is_active', 
+            'price', 'description', 'primary_image', 'secondary_image', 'is_sold_out', 'is_active', 
             'inventory_count', 'weight_ounces', 'images', 'is_in_stock',
             'created_at', 'updated_at'
         ]
@@ -38,9 +38,9 @@ class ProductListSerializer(serializers.ModelSerializer):
         ]
 
     def get_primary_image(self, obj):
-        # First check if product has a direct image
-        if obj.image:
-            return obj.image.url
+        # Check if product has a primary_image
+        if obj.primary_image:
+            return obj.primary_image.url
         # Then check ProductImage relationships
         primary_image = obj.images.filter(is_primary=True).first()
         if primary_image:

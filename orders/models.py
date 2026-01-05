@@ -70,6 +70,10 @@ class OrderItem(models.Model):
     )
 
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    lighter_type = models.CharField(
+        max_length=10,
+        help_text="Lighter type at time of purchase (snapshot)"
+    )
     unit_price = models.IntegerField()  # cents (snapshot of price at time of purchase)
     quantity = models.PositiveIntegerField()
 

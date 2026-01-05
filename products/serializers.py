@@ -15,11 +15,12 @@ class ProductSerializer(serializers.ModelSerializer):
     images = ProductImageSerializer(many=True, read_only=True)
     pattern_display = serializers.CharField(read_only=True)
     is_in_stock = serializers.BooleanField(read_only=True)
+    lighter_type_display = serializers.CharField(source='get_lighter_type_display', read_only=True)
 
     class Meta:
         model = Product
         fields = [
-            'id', 'name', 'slug', 'pattern', 'custom_pattern', 'pattern_display', 
+            'id', 'name', 'slug', 'lighter_type', 'lighter_type_display', 'pattern', 'custom_pattern', 'pattern_display', 
             'price', 'description', 'primary_image', 'secondary_image', 'is_sold_out', 'is_active', 
             'inventory_count', 'weight_ounces', 'images', 'is_in_stock',
             'created_at', 'updated_at'
@@ -28,12 +29,13 @@ class ProductSerializer(serializers.ModelSerializer):
 class ProductListSerializer(serializers.ModelSerializer):
     pattern_display = serializers.CharField(read_only=True)
     is_in_stock = serializers.BooleanField(read_only=True)
+    lighter_type_display = serializers.CharField(source='get_lighter_type_display', read_only=True)
     primary_image = serializers.SerializerMethodField()
 
     class Meta:
         model = Product
         fields = [
-            'id', 'name', 'slug', 'pattern', 'custom_pattern', 'pattern_display',
+            'id', 'name', 'slug', 'lighter_type', 'lighter_type_display', 'pattern', 'custom_pattern', 'pattern_display',
             'price', 'is_sold_out', 'inventory_count', 'primary_image', 'is_in_stock'
         ]
 

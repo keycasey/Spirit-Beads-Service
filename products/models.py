@@ -17,6 +17,11 @@ class Category(models.Model):
         return self.name
 
 class Product(models.Model):
+    LIGHTER_CHOICES = [
+        ('classic', 'Classic Bic'),
+        ('mini', 'Mini Bic'),
+    ]
+    
     PATTERN_CHOICES = [
         ('chevron', 'Chevron Pattern'),
         ('geometric', 'Geometric Pattern'),
@@ -40,6 +45,11 @@ class Product(models.Model):
     id = models.CharField(primary_key=True, max_length=100)
     name = models.CharField(max_length=255)
     slug = models.SlugField(max_length=200, unique=True)
+    lighter_type = models.CharField(
+        max_length=10, 
+        choices=LIGHTER_CHOICES, 
+        default='classic'
+    )
     pattern = models.CharField(max_length=50, choices=PATTERN_CHOICES)
     custom_pattern = models.CharField(max_length=100, blank=True, help_text="Enter custom pattern name")
     

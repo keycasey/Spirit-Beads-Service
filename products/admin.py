@@ -74,7 +74,7 @@ class ProductAdmin(admin.ModelAdmin):
     
     fieldsets = (
         ('Basic Information', {
-            'fields': ('name', 'slug', 'pattern', 'custom_pattern', 'description')
+            'fields': ('name', 'slug', 'lighter_type', 'pattern', 'custom_pattern', 'description')
         }),
         ('Pricing & Inventory', {
             'fields': ('price', 'currency', 'inventory_count', 'is_sold_out', 'is_active'),
@@ -87,9 +87,9 @@ class ProductAdmin(admin.ModelAdmin):
         ('Shipping', {
             'fields': ('weight_ounces',)
         }),
-        ('Catalog Image', {
-            'fields': ('image',),
-            'description': 'This image is displayed in the product catalog and list views.'
+        ('Product Images', {
+            'fields': ('primary_image', 'secondary_image'),
+            'description': 'Primary image is displayed in the catalog. Secondary image shows on hover.'
         }),
         ('Timestamps', {
             'fields': ('created_at', 'updated_at'),

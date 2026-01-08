@@ -200,7 +200,7 @@ class Command(BaseCommand):
             slug=f"{parsed['name'].lower().replace(' ', '-')}-{product_id[:8]}",
             lighter_type=lighter_type,
             pattern=pattern,
-            custom_pattern=parsed['category'] if pattern == 'custom' else '',
+            category=category,
             price=price_cents,
             description=f"Beautiful {parsed['category']} pattern lighter - {parsed['name']}"
         )

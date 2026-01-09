@@ -24,15 +24,6 @@ class Product(models.Model):
         (LIGHTER_TYPE_MINI, 'Mini BIC'),
     ]
     
-    PATTERN_CHOICES = [
-        ('chevron', 'Chevron Pattern'),
-        ('geometric', 'Geometric Pattern'),
-        ('sunburst', 'Sunburst Pattern'),
-        ('diamond', 'Diamond Pattern'),
-        ('mountain', 'Mountain Pattern'),
-        ('arrow', 'Arrow Pattern'),
-        ('custom', 'Custom Pattern'),
-    ]
 
     CURRENCY_CHOICES = [
         ('usd', 'USD - US Dollar'),
@@ -51,7 +42,6 @@ class Product(models.Model):
         choices=LIGHTER_TYPE_CHOICES, 
         default=LIGHTER_TYPE_CLASSIC
     )
-    pattern = models.CharField(max_length=50, choices=PATTERN_CHOICES)
     
     price = models.IntegerField(
         help_text="Price in cents (admin editable)"
@@ -102,11 +92,8 @@ class Product(models.Model):
         ordering = ['name']
 
     def __str__(self):
-        return f"{self.name} - {self.get_pattern_display()}"
+        return self.name
 
-    @property
-    def pattern_display(self):
-        return self.get_pattern_display()
 
     @property
     def is_in_stock(self):

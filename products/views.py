@@ -15,9 +15,9 @@ class ProductViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
     filterset_fields = {
         'lighter_type': ['exact', 'in'],
-        'pattern': ['exact', 'in'],
         'is_sold_out': ['exact'],
         'is_active': ['exact'],
+        'category': ['exact', 'in'],
     }
     ordering_fields = ['lighter_type', 'name', 'price', 'created_at']
     ordering = ['name']

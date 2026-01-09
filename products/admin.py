@@ -19,6 +19,7 @@ class ProductAdmin(admin.ModelAdmin):
     form = ProductAdminForm
     list_display = (
         "name",
+        "category",
         "formatted_price",
         "currency",
         "stripe_price_id",
@@ -60,7 +61,7 @@ class ProductAdmin(admin.ModelAdmin):
         queryset.update(is_active=False)
         self.message_user(request, f"Successfully archived {count} product(s). They will no longer appear in the store.")
     
-    list_filter = ['pattern', 'is_sold_out', 'is_active', 'created_at']
+    list_filter = ['is_sold_out', 'is_active', 'created_at']
     search_fields = ['name', 'category__name']
     prepopulated_fields = {'slug': ('name',)}
     readonly_fields = ['created_at', 'updated_at', 'stripe_product_id', 'stripe_price_id', 'currency']
@@ -68,7 +69,7 @@ class ProductAdmin(admin.ModelAdmin):
     
     fieldsets = (
         ('Basic Information', {
-            'fields': ('name', 'slug', 'lighter_type', 'pattern', 'category', 'description')
+            'fields': ('name', 'slug', 'lighter_type', 'category', 'description')
         }),
         ('Pricing & Inventory', {
             'fields': ('price', 'currency', 'inventory_count', 'is_sold_out', 'is_active'),

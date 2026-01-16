@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'django_filters',
     'corsheaders',
+    'anymail',
     'products',
     'payments',
     'orders',
@@ -169,12 +170,11 @@ STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
 STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET")
 FRONTEND_URL = os.getenv("FRONTEND_URL")
 
-# Email settings (Namecheap)
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'mail.privateemail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = os.getenv('NAMECHEAP_EMAIL')
-EMAIL_HOST_PASSWORD = os.getenv('NAMECHEAP_EMAIL_PASSWORD')
-DEFAULT_FROM_EMAIL = os.getenv('NAMECHEAP_EMAIL')
-SERVER_EMAIL = os.getenv('NAMECHEAP_EMAIL')
+# Email settings (Mailgun via Anymail)
+EMAIL_BACKEND = 'anymail.backends.mailgun.EmailBackend'
+ANYMAIL = {
+    'MAILGUN_API_KEY': os.getenv('MAILGUN_API_KEY'),
+    'MAILGUN_SENDER_DOMAIN': os.getenv('MAILGUN_SENDER_DOMAIN'),
+}
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'lynn.braveheart@thebeadedcase.com')
+SERVER_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'lynn.braveheart@thebeadedcase.com')

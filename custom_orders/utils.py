@@ -1,4 +1,7 @@
-from django.core.mail import send_mail
+import mimetypes
+import os
+
+from django.core.mail import send_mail, EmailMessage
 from django.conf import settings
 from django.template.loader import render_to_string
 
@@ -15,13 +18,27 @@ def send_new_request_notification(custom_request):
         'images': custom_request.images,
     })
 
-    send_mail(
+    email = EmailMessage(
         subject=subject,
-        message=message,
+        body=message,
         from_email=settings.DEFAULT_FROM_EMAIL,
-        recipient_list=[settings.DEFAULT_FROM_EMAIL],  # Admin receives notification
-        fail_silently=False,
+        to=[settings.DEFAULT_FROM_EMAIL],  # Admin receives notification
     )
+
+    # Attach images if they exist
+    for image_path in custom_request.images or []:
+        # Convert /media/custom_orders/filename.jpg to absolute path
+        if image_path.startswith(settings.MEDIA_URL):
+            relative_path = image_path[len(settings.MEDIA_URL):]
+            absolute_path = os.path.join(settings.MEDIA_ROOT, relative_path)
+
+            if os.path.exists(absolute_path):
+                filename = os.path.basename(absolute_path)
+                mime_type, _ = mimetypes.guess_type(absolute_path)
+                with open(absolute_path, 'rb') as f:
+                    email.attach(filename, f.read(), mime_type or 'application/octet-stream')
+
+    email.send(fail_silently=False)
 
 
 def send_approval_email(custom_request):

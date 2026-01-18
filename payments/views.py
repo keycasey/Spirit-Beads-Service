@@ -115,7 +115,7 @@ def create_checkout_session(request):
     for item in validated_items:
         product = item["product"]
         quantity = item["quantity"]
-        
+
         line_items.append({
             "price": product.stripe_price_id,
             "quantity": quantity,
@@ -126,16 +126,86 @@ def create_checkout_session(request):
     # Remove trailing slash for consistent URL construction
     origin = origin.rstrip('/')
 
+    # Set up shipping options by region - Stripe will show correct option based on customer address
+    SHIPPING_COST_USA = 500  # $5.00
+    SHIPPING_COST_CANADA_MEXICO = 1500  # $15.00
+    SHIPPING_COST_INTERNATIONAL = 2000  # $20.00
+
+    # Create or find shipping rates for each region
+    try:
+        existing_rates = stripe.ShippingRate.list(limit=100, active=True)
+
+        # USA shipping rate
+        usa_rate = next(
+            (r for r in existing_rates.data
+             if r.fixed_amount.amount == SHIPPING_COST_USA
+             and r.fixed_amount.currency == "usd"
+             and r.display_name == "USA Shipping"),
+            None
+        )
+        if not usa_rate:
+            usa_rate = stripe.ShippingRate.create(
+                display_name="USA Shipping",
+                fixed_amount={"amount": SHIPPING_COST_USA, "currency": "usd"},
+                type="fixed_amount",
+                delivery_estimate={"minimum": {"unit": "business_day", "value": 3}, "maximum": {"unit": "business_day", "value": 5}},
+                tax_behavior="exclusive",
+                tax_code="txcd_92010001",  # Shipping tax code
+            )
+
+        # Canada/Mexico shipping rate
+        na_rate = next(
+            (r for r in existing_rates.data
+             if r.fixed_amount.amount == SHIPPING_COST_CANADA_MEXICO
+             and r.fixed_amount.currency == "usd"
+             and r.display_name == "Canada/Mexico Shipping"),
+            None
+        )
+        if not na_rate:
+            na_rate = stripe.ShippingRate.create(
+                display_name="Canada/Mexico Shipping",
+                fixed_amount={"amount": SHIPPING_COST_CANADA_MEXICO, "currency": "usd"},
+                type="fixed_amount",
+                delivery_estimate={"minimum": {"unit": "business_day", "value": 5}, "maximum": {"unit": "business_day", "value": 10}},
+                tax_behavior="exclusive",
+            )
+
+        # International shipping rate
+        intl_rate = next(
+            (r for r in existing_rates.data
+             if r.fixed_amount.amount == SHIPPING_COST_INTERNATIONAL
+             and r.fixed_amount.currency == "usd"
+             and r.display_name == "International Shipping"),
+            None
+        )
+        if not intl_rate:
+            intl_rate = stripe.ShippingRate.create(
+                display_name="International Shipping",
+                fixed_amount={"amount": SHIPPING_COST_INTERNATIONAL, "currency": "usd"},
+                type="fixed_amount",
+                delivery_estimate={"minimum": {"unit": "business_day", "value": 10}, "maximum": {"unit": "business_day", "value": 20}},
+                tax_behavior="exclusive",
+            )
+
+        shipping_options = [
+            {"shipping_rate": usa_rate.id},
+            {"shipping_rate": na_rate.id},
+            {"shipping_rate": intl_rate.id},
+        ]
+    except Exception as e:
+        print(f"Warning: Could not create shipping rates: {e}")
+        shipping_options = []
+
     try:
         session = stripe.checkout.Session.create(
             mode="payment",
             payment_method_types=["card"],
             line_items=line_items,
+            shipping_options=shipping_options,
             success_url=f"{origin}/success?session_id={{CHECKOUT_SESSION_ID}}",
             cancel_url=f"{origin}/cancel",
-            shipping_address_collection={
-                "allowed_countries": ["US"]
-            },
+            # Remove country restriction - allow all countries
+            shipping_address_collection={"allowed_countries": []},  # Empty list = all countries
         )
     except stripe.error.InvalidRequestError as e:
         # Common cause: using a test-mode price ID with a live-mode secret key (or vice versa)
@@ -148,10 +218,11 @@ def create_checkout_session(request):
             status=400,
         )
 
+    # Create order with product total only - shipping will be added in webhook when customer selects option
     order = Order.objects.create(
         id=order_id,
         stripe_session_id=session.id,
-        amount_total=total_amount,
+        amount_total=total_amount,  # Will be updated in webhook with shipping
         currency="usd",
         status="pending",
     )
@@ -263,6 +334,8 @@ def stripe_webhook(request):
                 order.status = "paid"
                 order.stripe_payment_intent = session.payment_intent
                 order.customer_email = session.customer_details.email
+                # Update amount_total to include shipping selected by customer
+                order.amount_total = int(session.amount_total)
 
                 # Get address from customer_details (this is where Stripe Checkout stores it)
                 if (session.customer_details and
@@ -275,7 +348,7 @@ def stripe_webhook(request):
                     order.shipping_address = None
 
                 order.save()
-                print(f"Order {order.id} marked as paid")
+                print(f"Order {order.id} marked as paid with total ${order.amount_total / 100:.2f}")
 
                 # Send order confirmation email
                 try:

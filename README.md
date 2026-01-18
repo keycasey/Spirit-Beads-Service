@@ -3,7 +3,9 @@
 [![Django Version](https://img.shields.io/badge/django-6.0-green.svg)](https://www.djangoproject.com/)
 [![Django REST Framework](https://img.shields.io/badge/DRF-3.14-red.svg)](https://www.django-rest-framework.org/)
 [![Stripe Integration](https://img.shields.io/badge/stripe-integrated-blueviolet.svg)](https://stripe.com)
+
 Spirit Beads Backend is the production-grade, scalable e-commerce engine powering [thebeadedcase.com](https://thebeadedcase.com). Built with Python and the Django Rest Framework, this REST API provides a robust foundation for product management, order orchestration, and secure payment processing. It is a decoupled backend designed for reliability and maintainability.
+
 ## 🚀 Live Deployment
 This project is currently deployed and serving production traffic at: **[https://thebeadedcase.com](https://thebeadedcase.com)**
 ## ✨ Key Features

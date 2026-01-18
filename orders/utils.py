@@ -1,4 +1,5 @@
 import os
+from email.mime.image import MIMEImage
 from django.core.mail import EmailMessage
 from django.conf import settings
 from django.template.loader import render_to_string
@@ -7,10 +8,26 @@ import mimetypes
 
 def send_order_confirmation_email(order):
     """Send order confirmation email to customer and admin after successful checkout"""
-    # Prepare order items with product details
+    # Prepare order items with product details and collect images
     order_items = []
+    images_to_embed = []
+    item_index = 0
+
     for item in order.items.all():
         product = item.product
+        image_cid = None
+        image_path = None
+
+        # Get image file path for embedding
+        if product.primary_image:
+            image_path = product.primary_image.path
+            if os.path.exists(image_path):
+                image_cid = f'product{item_index}'
+                images_to_embed.append({
+                    'cid': image_cid,
+                    'path': image_path,
+                })
+
         order_items.append({
             'name': product.name,
             'collection': product.category.name if product.category else 'Uncategorized',
@@ -18,8 +35,9 @@ def send_order_confirmation_email(order):
             'quantity': item.quantity,
             'unit_price': item.unit_price_decimal,
             'total_price': item.unit_price_decimal * item.quantity,
-            'image_url': product.primary_image.url if product.primary_image else None,
+            'image': f'cid:{image_cid}' if image_cid else None,
         })
+        item_index += 1
 
     # Format shipping address from JSONField
     shipping_address = order.shipping_address
@@ -56,36 +74,92 @@ def send_order_confirmation_email(order):
         'total_amount': total_amount,
     }
 
-    # Render email content
+    # Render HTML email content
     subject = 'Order Confirmation - Spirit Beads'
-    message = render_to_string('orders/order_confirmation_email.txt', context)
+    html_message = render_to_string('orders/order_confirmation_email.html', context)
 
-    # Create email with product images attached
+    # Create HTML email
     email = EmailMessage(
         subject=subject,
-        body=message,
+        body=html_message,
         from_email=settings.DEFAULT_FROM_EMAIL,
         to=[order.customer_email],  # Send to customer
         cc=[settings.DEFAULT_FROM_EMAIL],  # CC to admin (lynn.braveheart@thebeadedcase.com)
     )
+    email.content_subtype = 'html'
 
-    # Attach product images
-    for item in order_items:
-        if item['image_url']:
-            # Convert URL to file path
-            if item['image_url'].startswith(settings.MEDIA_URL):
-                relative_path = item['image_url'][len(settings.MEDIA_URL):]
-                absolute_path = os.path.join(settings.MEDIA_ROOT, relative_path)
+    # Embed images as CID attachments
+    for img_data in images_to_embed:
+        with open(img_data['path'], 'rb') as f:
+            img = MIMEImage(f.read())
+            img.add_header('Content-ID', f'<{img_data["cid"]}>')
+            img.add_header('Content-Disposition', 'inline', filename=os.path.basename(img_data['path']))
+            email.attach(img)
 
-                if os.path.exists(absolute_path):
-                    filename = os.path.basename(absolute_path)
-                    # Use product name in filename for clarity
-                    base_name = os.path.splitext(filename)[0]
-                    ext = os.path.splitext(filename)[1]
-                    display_filename = f"{item['name']}-{base_name}{ext}"
+    email.send(fail_silently=False)
 
-                    mime_type, _ = mimetypes.guess_type(absolute_path)
-                    with open(absolute_path, 'rb') as f:
-                        email.attach(display_filename, f.read(), mime_type or 'image/jpeg')
+
+def send_order_shipped_email(order):
+    """Send shipping confirmation email to customer"""
+    # Prepare order items list
+    order_items = []
+    for item in order.items.all():
+        order_items.append({
+            'name': item.product.name,
+            'quantity': item.quantity,
+        })
+
+    # Get customer name from shipping address
+    customer_name = None
+    if order.shipping_address:
+        customer_name = order.shipping_address.get('name', '')
+
+    # Build context
+    context = {
+        'customer_name': customer_name,
+        'name': customer_name,  # For backwards compatibility with template
+        'order_id': str(order.id),
+        'tracking_number': order.tracking_number,
+        'shipping_carrier': order.shipping_carrier,
+        'shipped_date': order.shipped_at.strftime('%B %d, %Y') if order.shipped_at else '',
+        'is_custom_order': order.is_custom_order,
+        'product_image': None,  # Will be set to 'cid:product_image' if image exists
+    }
+
+    # For custom orders, add description and colors
+    if order.is_custom_order and hasattr(order, 'custom_request') and order.custom_request:
+        context.update({
+            'description': order.custom_request.description,
+            'colors': order.custom_request.colors,
+        })
+    elif not order.is_custom_order:
+        # For regular orders, add the items list
+        context['order_items'] = order_items
+
+    # Render HTML email content
+    subject = 'Your Order Has Shipped! - Spirit Beads'
+    html_message = render_to_string('orders/shipped_email.html', context)
+
+    # Create HTML email
+    email = EmailMessage(
+        subject=subject,
+        body=html_message,
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        to=[order.customer_email],
+    )
+    email.content_subtype = 'html'
+
+    # Embed product image if available
+    if order.product_image and order.product_image.path and os.path.exists(order.product_image.path):
+        with open(order.product_image.path, 'rb') as f:
+            img = MIMEImage(f.read())
+            img.add_header('Content-ID', '<product_image>')
+            img.add_header('Content-Disposition', 'inline', filename=os.path.basename(order.product_image.path))
+            email.attach(img)
+        # Update context to reference the CID image
+        context['product_image'] = 'cid:product_image'
+        # Re-render with the image reference
+        html_message = render_to_string('orders/shipped_email.html', context)
+        email.body = html_message
 
     email.send(fail_silently=False)

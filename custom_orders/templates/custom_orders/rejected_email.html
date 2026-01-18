@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Update on Your Custom Order Request</title>
+  <!--[if mso]>
+  <noscript>
+    <xml>
+      <o:OfficeDocumentSettings>
+        <o:PixelsPerInch>96</o:PixelsPerInch>
+      </o:OfficeDocumentSettings>
+    </xml>
+  </noscript>
+  <![endif]-->
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600&family=Lato:wght@400;500&display=swap');
+    
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #F5F2ED;
+      font-family: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+    
+    .email-wrapper {
+      background-color: #F5F2ED;
+      padding: 40px 20px;
+    }
+    
+    .email-container {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #FFFDFB;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(61, 42, 26, 0.08);
+    }
+    
+    .header {
+      background: linear-gradient(135deg, #3D2A1A 0%, #5A3D28 100%);
+      padding: 32px 40px;
+      text-align: center;
+    }
+    
+    .logo {
+      font-family: 'Lora', Georgia, serif;
+      font-size: 28px;
+      font-weight: 600;
+      color: #F2EDE6;
+      margin: 0;
+      letter-spacing: 0.5px;
+    }
+    
+    .tagline {
+      font-family: 'Lato', sans-serif;
+      font-size: 12px;
+      color: rgba(242, 237, 230, 0.7);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-top: 8px;
+    }
+    
+    .content {
+      padding: 40px;
+    }
+    
+    .greeting {
+      font-family: 'Lora', Georgia, serif;
+      font-size: 24px;
+      font-weight: 500;
+      color: #3D2A1A;
+      margin: 0 0 8px 0;
+    }
+    
+    .intro {
+      font-size: 16px;
+      color: #5A4A3A;
+      line-height: 1.6;
+      margin: 0 0 28px 0;
+    }
+    
+    .highlight-box {
+      background: linear-gradient(135deg, #F5F2ED 0%, #EBE7E0 100%);
+      border-left: 4px solid #DDD5C5;
+      border-radius: 0 8px 8px 0;
+      padding: 20px 24px;
+      margin: 24px 0;
+    }
+    
+    .highlight-title {
+      font-family: 'Lora', Georgia, serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: #6B5A4A;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin: 0 0 12px 0;
+    }
+    
+    .highlight-text {
+      font-size: 15px;
+      color: #5A4A3A;
+      line-height: 1.6;
+      margin: 0;
+    }
+    
+    .reason-box {
+      background: linear-gradient(135deg, #B85A2B08 0%, #B85A2B05 100%);
+      border: 1px solid rgba(184, 90, 43, 0.2);
+      border-radius: 12px;
+      padding: 20px 24px;
+      margin: 24px 0;
+    }
+    
+    .reason-title {
+      font-family: 'Lora', Georgia, serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: #B85A2B;
+      margin: 0 0 8px 0;
+    }
+    
+    .reason-text {
+      font-size: 15px;
+      color: #5A4A3A;
+      line-height: 1.6;
+      margin: 0;
+    }
+    
+    .alternative-box {
+      background: linear-gradient(135deg, #2596BE10 0%, #2596BE08 100%);
+      border-radius: 12px;
+      padding: 24px;
+      margin: 28px 0;
+      text-align: center;
+    }
+    
+    .alternative-title {
+      font-family: 'Lora', Georgia, serif;
+      font-size: 18px;
+      font-weight: 500;
+      color: #3D2A1A;
+      margin: 0 0 12px 0;
+    }
+    
+    .alternative-text {
+      font-size: 15px;
+      color: #5A4A3A;
+      line-height: 1.6;
+      margin: 0 0 20px 0;
+    }
+    
+    .cta-button {
+      display: inline-block;
+      background: linear-gradient(135deg, #2596BE 0%, #1E7A9E 100%);
+      color: #FFFFFF !important;
+      text-decoration: none;
+      font-family: 'Lato', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      padding: 12px 28px;
+      border-radius: 8px;
+      box-shadow: 0 4px 14px rgba(37, 150, 190, 0.3);
+    }
+    
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, #DDD5C5, transparent);
+      margin: 32px 0;
+    }
+    
+    .closing {
+      font-size: 16px;
+      color: #5A4A3A;
+      line-height: 1.6;
+      text-align: center;
+      margin: 24px 0;
+    }
+    
+    .signature {
+      text-align: center;
+    }
+    
+    .signature-warmly {
+      font-style: italic;
+      color: #6B5A4A;
+      margin: 0 0 4px 0;
+    }
+    
+    .signature-name {
+      font-family: 'Lora', Georgia, serif;
+      font-size: 20px;
+      font-weight: 500;
+      color: #B85A2B;
+      margin: 0;
+    }
+    
+    .signature-brand {
+      font-size: 14px;
+      color: #5A4A3A;
+      margin: 4px 0 0 0;
+    }
+    
+    .footer {
+      background-color: #3D2A1A;
+      padding: 28px 40px;
+      text-align: center;
+    }
+    
+    .footer-text {
+      font-size: 13px;
+      color: rgba(242, 237, 230, 0.7);
+      margin: 0 0 8px 0;
+    }
+    
+    .footer-link {
+      color: #F2EDE6 !important;
+      text-decoration: none;
+    }
+    
+    .footer-heart {
+      color: #B85A2B;
+    }
+  </style>
+</head>
+<body>
+  <div class="email-wrapper">
+    <div class="email-container">
+      <!-- Header -->
+      <div class="header">
+        <h1 class="logo">Spirit Beads</h1>
+        <p class="tagline">Handcrafted with Heart</p>
+      </div>
+      
+      <!-- Content -->
+      <div class="content">
+        <h2 class="greeting">Hello, {{ name }}</h2>
+        <p class="intro">
+          Thank you so much for your interest in a custom order from Spirit Beads. I've carefully 
+          reviewed your request, and unfortunately, I'm not able to accommodate it at this time.
+        </p>
+        
+        <!-- Original Request -->
+        <div class="highlight-box">
+          <p class="highlight-title">Your Request</p>
+          <p class="highlight-text">{{ description }}</p>
+          {% if colors %}
+          <p class="highlight-text" style="margin-top: 12px;"><strong>Colors:</strong> {{ colors }}</p>
+          {% endif %}
+        </div>
+        
+        {% if rejection_reason %}
+        <!-- Reason -->
+        <div class="reason-box">
+          <p class="reason-title">Why I'm Unable to Fulfill This Request</p>
+          <p class="reason-text">{{ rejection_reason }}</p>
+        </div>
+        {% endif %}
+        
+        <!-- Alternative -->
+        <div class="alternative-box">
+          <h3 class="alternative-title">Explore the Collection</h3>
+          <p class="alternative-text">
+            I truly appreciate your interest in my handcrafted work. Please consider 
+            browsing my ready-made collection—each piece is still one-of-a-kind and made with the same love and care.
+          </p>
+          <a href="https://thebeadedcase.com" class="cta-button">Shop Collection</a>
+        </div>
+        
+        {% if not rejection_reason %}
+        <p class="closing" style="font-style: italic; color: #6B5A4A;">
+          For updates and to be notified when I'm accepting new custom orders, 
+          please check back on the website or reach out via email.
+        </p>
+        {% endif %}
+        
+        <div class="divider"></div>
+        
+        <p class="closing">
+          Thank you for your understanding and for supporting Native artistry!
+        </p>
+        
+        <!-- Signature -->
+        <div class="signature">
+          <p class="signature-warmly">With gratitude,</p>
+          <p class="signature-name">Lynn Braveheart</p>
+          <p class="signature-brand">Spirit Beads</p>
+        </div>
+      </div>
+      
+      <!-- Footer -->
+      <div class="footer">
+        <p class="footer-text">
+          Made with <span class="footer-heart">❤</span> on Native Land
+        </p>
+        <p class="footer-text">
+          <a href="https://thebeadedcase.com" class="footer-link">thebeadedcase.com</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

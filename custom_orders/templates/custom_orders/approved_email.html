@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Custom Order Request Has Been Approved!</title>
+  <!--[if mso]>
+  <noscript>
+    <xml>
+      <o:OfficeDocumentSettings>
+        <o:PixelsPerInch>96</o:PixelsPerInch>
+      </o:OfficeDocumentSettings>
+    </xml>
+  </noscript>
+  <![endif]-->
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600&family=Lato:wght@400;500&display=swap');
+    
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #F5F2ED;
+      font-family: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+    
+    .email-wrapper {
+      background-color: #F5F2ED;
+      padding: 40px 20px;
+    }
+    
+    .email-container {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #FFFDFB;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(61, 42, 26, 0.08);
+    }
+    
+    .header {
+      background: linear-gradient(135deg, #3D2A1A 0%, #5A3D28 100%);
+      padding: 32px 40px;
+      text-align: center;
+    }
+    
+    .logo {
+      font-family: 'Lora', Georgia, serif;
+      font-size: 28px;
+      font-weight: 600;
+      color: #F2EDE6;
+      margin: 0;
+      letter-spacing: 0.5px;
+    }
+    
+    .tagline {
+      font-family: 'Lato', sans-serif;
+      font-size: 12px;
+      color: rgba(242, 237, 230, 0.7);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-top: 8px;
+    }
+    
+    .content {
+      padding: 40px;
+    }
+    
+    .greeting {
+      font-family: 'Lora', Georgia, serif;
+      font-size: 24px;
+      font-weight: 500;
+      color: #3D2A1A;
+      margin: 0 0 8px 0;
+    }
+    
+    .intro {
+      font-size: 16px;
+      color: #5A4A3A;
+      line-height: 1.6;
+      margin: 0 0 28px 0;
+    }
+    
+    .highlight-box {
+      background-color: #FEFBF6;
+      border-left: 4px solid #2596BE;
+      border-radius: 0 8px 8px 0;
+      padding: 20px 24px;
+      margin: 24px 0;
+    }
+    
+    .product-image-container {
+      background-color: #FEFBF6;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+    
+    .product-image {
+      max-width: 100%;
+      max-height: 200px;
+      height: auto;
+      border-radius: 4px;
+    }
+    
+    .highlight-title {
+      font-family: 'Lora', Georgia, serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: #2596BE;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin: 0 0 12px 0;
+    }
+    
+    .highlight-text {
+      font-size: 15px;
+      color: #3D2A1A;
+      line-height: 1.6;
+      margin: 0;
+    }
+    
+    .detail-row {
+      display: flex;
+      margin: 8px 0;
+    }
+    
+    .detail-label {
+      font-weight: 600;
+      color: #5A4A3A;
+      min-width: 80px;
+    }
+    
+    .detail-value {
+      color: #3D2A1A;
+    }
+    
+    .pricing-box {
+      background: linear-gradient(135deg, #B85A2B15 0%, #B85A2B10 100%);
+      border: 2px solid #B85A2B;
+      border-radius: 12px;
+      padding: 24px;
+      margin: 28px 0;
+      text-align: center;
+    }
+    
+    .pricing-label {
+      font-size: 14px;
+      color: #5A4A3A;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin: 0 0 8px 0;
+    }
+    
+    .pricing-amount {
+      font-family: 'Lora', Georgia, serif;
+      font-size: 36px;
+      font-weight: 600;
+      color: #B85A2B;
+      margin: 0;
+    }
+    
+    .timeline-note {
+      font-size: 14px;
+      color: #6B5A4A;
+      text-align: center;
+      font-style: italic;
+      margin: 16px 0 0 0;
+    }
+    
+    .cta-button {
+      display: block;
+      background: linear-gradient(135deg, #B85A2B 0%, #A04D24 100%);
+      color: #FFFFFF !important;
+      text-decoration: none;
+      font-family: 'Lato', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      text-align: center;
+      padding: 16px 32px;
+      border-radius: 8px;
+      margin: 32px auto;
+      max-width: 280px;
+      box-shadow: 0 4px 14px rgba(184, 90, 43, 0.3);
+      transition: all 0.2s ease;
+    }
+    
+    .cta-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(184, 90, 43, 0.4);
+    }
+    
+    .note {
+      font-size: 14px;
+      color: #6B5A4A;
+      line-height: 1.6;
+      text-align: center;
+      margin: 24px 0 0 0;
+    }
+    
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, #DDD5C5, transparent);
+      margin: 32px 0;
+    }
+    
+    .signature {
+      text-align: center;
+    }
+    
+    .signature-warmly {
+      font-style: italic;
+      color: #6B5A4A;
+      margin: 0 0 4px 0;
+    }
+    
+    .signature-name {
+      font-family: 'Lora', Georgia, serif;
+      font-size: 20px;
+      font-weight: 500;
+      color: #B85A2B;
+      margin: 0;
+    }
+    
+    .signature-brand {
+      font-size: 14px;
+      color: #5A4A3A;
+      margin: 4px 0 0 0;
+    }
+    
+    .footer {
+      background-color: #3D2A1A;
+      padding: 28px 40px;
+      text-align: center;
+    }
+    
+    .footer-text {
+      font-size: 13px;
+      color: rgba(242, 237, 230, 0.7);
+      margin: 0 0 8px 0;
+    }
+    
+    .footer-link {
+      color: #F2EDE6 !important;
+      text-decoration: none;
+    }
+    
+    .footer-heart {
+      color: #B85A2B;
+    }
+  </style>
+</head>
+<body>
+  <div class="email-wrapper">
+    <div class="email-container">
+      <!-- Header -->
+      <div class="header">
+        <h1 class="logo">Spirit Beads</h1>
+        <p class="tagline">Handcrafted with Heart</p>
+      </div>
+      
+      <!-- Content -->
+      <div class="content">
+        <h2 class="greeting">Great news, {{ name }}!</h2>
+        <p class="intro">
+          I've reviewed your custom order request and I'd be honored to create this special piece for you. 
+          Each custom order is a collaboration, and I'm so excited to bring your vision to life.
+        </p>
+        
+        <!-- Request Details -->
+        <div class="highlight-box">
+          {% if reference_images %}
+          <div class="product-image-container">
+            {% for image in reference_images %}
+            <img src="{{ image }}" alt="Reference image" class="product-image" style="margin: 4px;" />
+            {% endfor %}
+          </div>
+          {% endif %}
+          <p class="highlight-title">Your Request</p>
+          <p class="highlight-text">{{ description }}</p>
+          {% if colors %}
+          <p class="highlight-text" style="margin-top: 12px;"><strong>Colors:</strong> {{ colors }}</p>
+          {% endif %}
+        </div>
+        
+        <!-- Pricing -->
+        <div class="pricing-box">
+          <p class="pricing-label">Your Custom Piece</p>
+          <p class="pricing-amount">${{ quoted_price }}</p>
+          <p class="timeline-note">Please allow 2–3 weeks for completion once payment is received</p>
+        </div>
+        
+        <!-- CTA -->
+        <a href="{{ stripe_payment_link }}" class="cta-button">Complete Your Order</a>
+        
+        <p class="note">
+          Once I receive your payment, I'll begin working on your custom creation 
+          and send you updates as it comes together.
+        </p>
+        
+        <p class="note">
+          Have questions or want to discuss the design? Just reply to this email—I'd love to hear from you.
+        </p>
+        
+        <div class="divider"></div>
+        
+        <!-- Signature -->
+        <div class="signature">
+          <p class="signature-warmly">Warmly,</p>
+          <p class="signature-name">Lynn Braveheart</p>
+          <p class="signature-brand">Spirit Beads</p>
+        </div>
+      </div>
+      
+      <!-- Footer -->
+      <div class="footer">
+        <p class="footer-text">
+          Made with <span class="footer-heart">❤</span> on Native Land
+        </p>
+        <p class="footer-text">
+          <a href="https://thebeadedcase.com" class="footer-link">thebeadedcase.com</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

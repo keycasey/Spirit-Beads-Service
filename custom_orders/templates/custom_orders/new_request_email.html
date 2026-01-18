@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>New Custom Order Request</title>
+  <!--[if mso]>
+  <noscript>
+    <xml>
+      <o:OfficeDocumentSettings>
+        <o:PixelsPerInch>96</o:PixelsPerInch>
+      </o:OfficeDocumentSettings>
+    </xml>
+  </noscript>
+  <![endif]-->
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600&family=Lato:wght@400;500&display=swap');
+    
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #F5F2ED;
+      font-family: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+    
+    .email-wrapper {
+      background-color: #F5F2ED;
+      padding: 40px 20px;
+    }
+    
+    .email-container {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #FFFDFB;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(61, 42, 26, 0.08);
+    }
+    
+    .header {
+      background: linear-gradient(135deg, #2596BE 0%, #1E7A9E 100%);
+      padding: 32px 40px;
+      text-align: center;
+    }
+    
+    .header-badge {
+      display: inline-block;
+      background: rgba(255, 255, 255, 0.2);
+      color: #FFFFFF;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      padding: 8px 16px;
+      border-radius: 20px;
+      margin-bottom: 12px;
+    }
+    
+    .header-title {
+      font-family: 'Lora', Georgia, serif;
+      font-size: 24px;
+      font-weight: 600;
+      color: #FFFFFF;
+      margin: 0;
+    }
+    
+    .content {
+      padding: 40px;
+    }
+    
+    .section-title {
+      font-family: 'Lora', Georgia, serif;
+      font-size: 16px;
+      font-weight: 600;
+      color: #3D2A1A;
+      margin: 0 0 16px 0;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #DDD5C5;
+    }
+    
+    .customer-box {
+      background: linear-gradient(135deg, #F5F2ED 0%, #EBE7E0 100%);
+      border-radius: 12px;
+      padding: 24px;
+      margin: 0 0 28px 0;
+    }
+    
+    .customer-row {
+      display: flex;
+      margin: 8px 0;
+    }
+    
+    .customer-label {
+      font-size: 14px;
+      color: #6B5A4A;
+      min-width: 60px;
+    }
+    
+    .customer-value {
+      font-size: 14px;
+      font-weight: 600;
+      color: #3D2A1A;
+    }
+    
+    .customer-value a {
+      color: #2596BE;
+      text-decoration: none;
+    }
+    
+    .request-box {
+      background: linear-gradient(135deg, #B85A2B10 0%, #B85A2B08 100%);
+      border-left: 4px solid #B85A2B;
+      border-radius: 0 8px 8px 0;
+      padding: 20px 24px;
+      margin: 0 0 28px 0;
+    }
+    
+    .request-title {
+      font-family: 'Lora', Georgia, serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: #B85A2B;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin: 0 0 12px 0;
+    }
+    
+    .request-detail {
+      font-size: 14px;
+      color: #3D2A1A;
+      line-height: 1.6;
+      margin: 8px 0;
+    }
+    
+    .request-detail strong {
+      color: #5A4A3A;
+    }
+    
+    .images-section {
+      margin: 28px 0;
+    }
+    
+    .images-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 12px;
+    }
+    
+    .image-link {
+      display: inline-block;
+      background: #F5F2ED;
+      color: #2596BE;
+      font-size: 13px;
+      text-decoration: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      border: 1px solid #DDD5C5;
+    }
+    
+    .image-link:hover {
+      background: #EBE7E0;
+    }
+    
+    .no-images {
+      font-size: 14px;
+      color: #6B5A4A;
+      font-style: italic;
+    }
+    
+    .cta-button {
+      display: block;
+      background: linear-gradient(135deg, #B85A2B 0%, #A04D24 100%);
+      color: #FFFFFF !important;
+      text-decoration: none;
+      font-family: 'Lato', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      text-align: center;
+      padding: 16px 32px;
+      border-radius: 8px;
+      margin: 32px auto;
+      max-width: 280px;
+      box-shadow: 0 4px 14px rgba(184, 90, 43, 0.3);
+    }
+    
+    .footer {
+      background-color: #3D2A1A;
+      padding: 24px 40px;
+      text-align: center;
+    }
+    
+    .footer-text {
+      font-size: 13px;
+      color: rgba(242, 237, 230, 0.7);
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="email-wrapper">
+    <div class="email-container">
+      <!-- Header -->
+      <div class="header">
+        <span class="header-badge">Admin Notification</span>
+        <h1 class="header-title">New Custom Order Request</h1>
+      </div>
+      
+      <!-- Content -->
+      <div class="content">
+        <!-- Customer Info -->
+        <h2 class="section-title">Customer Details</h2>
+        <div class="customer-box">
+          <div class="customer-row">
+            <span class="customer-label">Name:</span>
+            <span class="customer-value">{{ name }}</span>
+          </div>
+          <div class="customer-row">
+            <span class="customer-label">Email:</span>
+            <span class="customer-value"><a href="mailto:{{ email }}">{{ email }}</a></span>
+          </div>
+        </div>
+        
+        <!-- Request Details -->
+        <h2 class="section-title">Request Details</h2>
+        <div class="request-box">
+          <p class="request-title">Custom Order Request</p>
+          <p class="request-detail"><strong>Colors:</strong> {{ colors|default:"Not specified" }}</p>
+          <p class="request-detail"><strong>Description:</strong></p>
+          <p class="request-detail">{{ description }}</p>
+        </div>
+        
+        <!-- Images -->
+        <div class="images-section">
+          <h2 class="section-title">Attached Images</h2>
+          {% if images %}
+          <div class="images-grid">
+            {% for image in images %}
+            <a href="{{ image }}" class="image-link" target="_blank">📎 View Image {{ forloop.counter }}</a>
+            {% endfor %}
+          </div>
+          {% else %}
+          <p class="no-images">No images attached to this request</p>
+          {% endif %}
+        </div>
+        
+        <!-- CTA -->
+        <a href="#" class="cta-button">View in Django Admin</a>
+      </div>
+      
+      <!-- Footer -->
+      <div class="footer">
+        <p class="footer-text">Spirit Beads Admin Notification</p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

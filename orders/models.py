@@ -6,6 +6,7 @@ class Order(models.Model):
     STATUS_CHOICES = (
         ("pending", "Pending"),
         ("paid", "Paid"),
+        ("shipped", "Shipped"),
         ("failed", "Failed"),
     )
 
@@ -27,7 +28,18 @@ class Order(models.Model):
     shipping_address = models.JSONField(blank=True, null=True)
 
     is_custom_order = models.BooleanField(default=False, help_text="Whether this is a custom order")
-    
+
+    # Shipping fields
+    shipped_at = models.DateTimeField(blank=True, null=True, help_text="When the order was shipped")
+    tracking_number = models.CharField(max_length=255, blank=True, null=True, help_text="Tracking number for shipment")
+    shipping_carrier = models.CharField(max_length=50, default="USPS", help_text="Shipping carrier (USPS, UPS, FedEx, etc.)")
+    product_image = models.ImageField(
+        upload_to='orders/shipped/',
+        blank=True,
+        null=True,
+        help_text="Photo of the product (optional)"
+    )
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

@@ -237,6 +237,9 @@ class CustomOrderRequestAdmin(admin.ModelAdmin):
 
     def mark_as_shipped(self, request, queryset):
         """Mark custom orders as shipped"""
+        from django.utils import timezone
+        from orders.utils import send_order_shipped_email
+
         count = 0
         for request_obj in queryset.filter(status='in_production'):
             if not request_obj.related_order:
@@ -247,13 +250,29 @@ class CustomOrderRequestAdmin(admin.ModelAdmin):
                 )
                 continue
 
-            # Update status and send shipping notification
+            order = request_obj.related_order
+
+            # Check if tracking number is set on the order
+            if not order.tracking_number:
+                self.message_user(
+                    request,
+                    f"Cannot mark as shipped: Order {order.id} has no tracking number. Please add tracking info to the order first.",
+                    messages.WARNING
+                )
+                continue
+
+            # Update custom request status
             request_obj.status = 'shipped'
             request_obj.save()
 
-            # Send shipped email (you can add tracking fields to the model later)
+            # Update order with shipped status and timestamp
+            order.status = 'shipped'
+            order.shipped_at = timezone.now()
+            order.save()
+
+            # Send shipped email using unified function
             try:
-                send_shipped_email(request_obj, request_obj.related_order)
+                send_order_shipped_email(order)
                 count += 1
                 self.message_user(
                     request,

@@ -75,6 +75,6 @@ This project serves as a powerful example of a scalable e-commerce backend.
 -   **Custom Order Lifecycle**: The `CustomOrderRequest` model is the centerpiece of the custom order workflow. A request begins in a `pending` state. An administrator can review it via the Django Admin, add notes, and set a `quoted_price`. Upon approval, the system can generate a `stripe_payment_link`. Once the customer completes payment, the request is transitioned to `paid`, and a corresponding `orders.Order` object is created to bring it into the standard order fulfillment pipeline.
 ## 📚 Related Projects
 
-- **[spirit-beads-service](https://github.com/caseyjkey/spirit-beads-service)** - Service layer architecture
+- **[spirit-beads-service](https://github.com/caseyjkey/spirit-beads-service)** - Django e-commerce backend (service layer)
 - **[spirit-beads-ui](https://github.com/caseyjkey/spirit-beads-ui)** - React 18 production frontend
 - **[lighter-splitter](https://github.com/caseyjkey/lighter-splitter)** - Spirit Beads ecosystem - image processing pipeline

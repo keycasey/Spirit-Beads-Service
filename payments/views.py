@@ -23,7 +23,6 @@ def get_customer_country(request):
     # Check for Cloudflare country header first (if using Cloudflare)
     cf_country = request.META.get('HTTP_CF_IPCOUNTRY')
     if cf_country:
-        logger.info(f"Using Cloudflare country: {cf_country}")
         return cf_country
 
     # Fall back to ipinfo.io API
@@ -32,10 +31,8 @@ def get_customer_country(request):
         x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
         if x_forwarded_for:
             ip = x_forwarded_for.split(',')[0].strip()
-            logger.info(f"Using IP from X-Forwarded-For: {ip}")
         else:
             ip = request.META.get('REMOTE_ADDR')
-            logger.info(f"Using IP from REMOTE_ADDR: {ip}")
 
         # Get ipinfo token from env if available (optional, increases rate limits)
         ipinfo_token = os.getenv('IPINFO_TOKEN')
@@ -46,16 +43,12 @@ def get_customer_country(request):
         else:
             url = f'https://ipinfo.io/{ip}'  # No token = lower rate limits
 
-        logger.info(f"Fetching country from ipinfo.io for IP: {ip}")
         response = requests.get(url, timeout=2)
         if response.status_code == 200:
             data = response.json()
-            country = data.get('country', 'US')
-            logger.info(f"ipinfo.io response: {data}")
-            logger.info(f"Detected country from ipinfo: {country}")
-            return country
-    except Exception as e:
-        logger.warning(f"Could not detect country from IP: {e}")
+            return data.get('country', 'US')
+    except Exception:
+        pass  # Silently fall back to US
 
     return 'US'  # Default to US
 
@@ -176,7 +169,6 @@ def create_checkout_session(request):
 
     # Detect customer country from IP address
     customer_country = get_customer_country(request)
-    logger.info(f"Detected customer country: {customer_country}")
 
     # Set up shipping option based on detected country
     SHIPPING_COST_USA = 500  # $5.00

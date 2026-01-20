@@ -126,94 +126,57 @@ def create_checkout_session(request):
     # Remove trailing slash for consistent URL construction
     origin = origin.rstrip('/')
 
-    # Set up shipping options by region - Stripe will show correct option based on customer address
+    # Set up shipping options by region - create shipping rates inline
     SHIPPING_COST_USA = 500  # $5.00
     SHIPPING_COST_CANADA_MEXICO = 1500  # $15.00
     SHIPPING_COST_INTERNATIONAL = 2000  # $20.00
 
-    # Create or update shipping rates for each region with country restrictions
-    try:
-        existing_rates = stripe.ShippingRate.list(limit=100, active=True)
+    shipping_options = []
 
-        # USA shipping rate - restricted to US only
-        usa_rate = next(
-            (r for r in existing_rates.data
-             if r.fixed_amount.amount == SHIPPING_COST_USA
-             and r.fixed_amount.currency == "usd"
-             and r.display_name == "USA Shipping"),
-            None
-        )
-        # Delete and recreate if it exists without proper restrictions
-        if usa_rate and not usa_rate.delivery_estimate.restrictions:
-            stripe.ShippingRate.delete(usa_rate.id)
-            usa_rate = None
-        if not usa_rate:
-            usa_rate = stripe.ShippingRate.create(
-                display_name="USA Shipping",
-                fixed_amount={"amount": SHIPPING_COST_USA, "currency": "usd"},
-                type="fixed_amount",
-                delivery_estimate={
+    try:
+        # USA Shipping - $5.00
+        shipping_options.append({
+            "shipping_rate_data": {
+                "display_name": "USA Shipping",
+                "fixed_amount": {"amount": SHIPPING_COST_USA, "currency": "usd"},
+                "type": "fixed_amount",
+                "delivery_estimate": {
                     "minimum": {"unit": "business_day", "value": 3},
                     "maximum": {"unit": "business_day", "value": 5},
-                    "restrictions": {"allowed_countries": ["US"]}
                 },
-                tax_behavior="exclusive",
-                tax_code="txcd_92010001",
-            )
+                "tax_behavior": "exclusive",
+            }
+        })
 
-        # Canada/Mexico shipping rate - restricted to CA and MX
-        na_rate = next(
-            (r for r in existing_rates.data
-             if r.fixed_amount.amount == SHIPPING_COST_CANADA_MEXICO
-             and r.fixed_amount.currency == "usd"
-             and r.display_name == "Canada/Mexico Shipping"),
-            None
-        )
-        # Delete and recreate if it exists without proper restrictions
-        if na_rate and not na_rate.delivery_estimate.restrictions:
-            stripe.ShippingRate.delete(na_rate.id)
-            na_rate = None
-        if not na_rate:
-            na_rate = stripe.ShippingRate.create(
-                display_name="Canada/Mexico Shipping",
-                fixed_amount={"amount": SHIPPING_COST_CANADA_MEXICO, "currency": "usd"},
-                type="fixed_amount",
-                delivery_estimate={
+        # Canada/Mexico Shipping - $15.00
+        shipping_options.append({
+            "shipping_rate_data": {
+                "display_name": "Canada/Mexico Shipping",
+                "fixed_amount": {"amount": SHIPPING_COST_CANADA_MEXICO, "currency": "usd"},
+                "type": "fixed_amount",
+                "delivery_estimate": {
                     "minimum": {"unit": "business_day", "value": 5},
                     "maximum": {"unit": "business_day", "value": 10},
-                    "restrictions": {"allowed_countries": ["CA", "MX"]}
                 },
-                tax_behavior="exclusive",
-            )
+                "tax_behavior": "exclusive",
+            }
+        })
 
-        # International shipping rate - no country restrictions (fallback for all)
-        intl_rate = next(
-            (r for r in existing_rates.data
-             if r.fixed_amount.amount == SHIPPING_COST_INTERNATIONAL
-             and r.fixed_amount.currency == "usd"
-             and r.display_name == "International Shipping"),
-            None
-        )
-        if not intl_rate:
-            intl_rate = stripe.ShippingRate.create(
-                display_name="International Shipping",
-                fixed_amount={"amount": SHIPPING_COST_INTERNATIONAL, "currency": "usd"},
-                type="fixed_amount",
-                delivery_estimate={
+        # International Shipping - $20.00
+        shipping_options.append({
+            "shipping_rate_data": {
+                "display_name": "International Shipping",
+                "fixed_amount": {"amount": SHIPPING_COST_INTERNATIONAL, "currency": "usd"},
+                "type": "fixed_amount",
+                "delivery_estimate": {
                     "minimum": {"unit": "business_day", "value": 10},
-                    "maximum": {"unit": "business_day", "value": 20}
+                    "maximum": {"unit": "business_day", "value": 20},
                 },
-                tax_behavior="exclusive",
-            )
-
-        shipping_options = [
-            {"shipping_rate": usa_rate.id},
-            {"shipping_rate": na_rate.id},
-            {"shipping_rate": intl_rate.id},
-        ]
+                "tax_behavior": "exclusive",
+            }
+        })
     except Exception as e:
-        print(f"Warning: Could not create shipping rates: {e}")
-        shipping_options = []
+        print(f"Warning: Could not create shipping options: {e}")
 
     try:
         session = stripe.checkout.Session.create(

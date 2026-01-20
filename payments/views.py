@@ -131,11 +131,11 @@ def create_checkout_session(request):
     SHIPPING_COST_CANADA_MEXICO = 1500  # $15.00
     SHIPPING_COST_INTERNATIONAL = 2000  # $20.00
 
-    # Create or find shipping rates for each region
+    # Create or update shipping rates for each region with country restrictions
     try:
         existing_rates = stripe.ShippingRate.list(limit=100, active=True)
 
-        # USA shipping rate
+        # USA shipping rate - restricted to US only
         usa_rate = next(
             (r for r in existing_rates.data
              if r.fixed_amount.amount == SHIPPING_COST_USA
@@ -143,17 +143,25 @@ def create_checkout_session(request):
              and r.display_name == "USA Shipping"),
             None
         )
+        # Delete and recreate if it exists without proper restrictions
+        if usa_rate and not usa_rate.delivery_estimate.restrictions:
+            stripe.ShippingRate.delete(usa_rate.id)
+            usa_rate = None
         if not usa_rate:
             usa_rate = stripe.ShippingRate.create(
                 display_name="USA Shipping",
                 fixed_amount={"amount": SHIPPING_COST_USA, "currency": "usd"},
                 type="fixed_amount",
-                delivery_estimate={"minimum": {"unit": "business_day", "value": 3}, "maximum": {"unit": "business_day", "value": 5}},
+                delivery_estimate={
+                    "minimum": {"unit": "business_day", "value": 3},
+                    "maximum": {"unit": "business_day", "value": 5},
+                    "restrictions": {"allowed_countries": ["US"]}
+                },
                 tax_behavior="exclusive",
-                tax_code="txcd_92010001",  # Shipping tax code
+                tax_code="txcd_92010001",
             )
 
-        # Canada/Mexico shipping rate
+        # Canada/Mexico shipping rate - restricted to CA and MX
         na_rate = next(
             (r for r in existing_rates.data
              if r.fixed_amount.amount == SHIPPING_COST_CANADA_MEXICO
@@ -161,16 +169,24 @@ def create_checkout_session(request):
              and r.display_name == "Canada/Mexico Shipping"),
             None
         )
+        # Delete and recreate if it exists without proper restrictions
+        if na_rate and not na_rate.delivery_estimate.restrictions:
+            stripe.ShippingRate.delete(na_rate.id)
+            na_rate = None
         if not na_rate:
             na_rate = stripe.ShippingRate.create(
                 display_name="Canada/Mexico Shipping",
                 fixed_amount={"amount": SHIPPING_COST_CANADA_MEXICO, "currency": "usd"},
                 type="fixed_amount",
-                delivery_estimate={"minimum": {"unit": "business_day", "value": 5}, "maximum": {"unit": "business_day", "value": 10}},
+                delivery_estimate={
+                    "minimum": {"unit": "business_day", "value": 5},
+                    "maximum": {"unit": "business_day", "value": 10},
+                    "restrictions": {"allowed_countries": ["CA", "MX"]}
+                },
                 tax_behavior="exclusive",
             )
 
-        # International shipping rate
+        # International shipping rate - no country restrictions (fallback for all)
         intl_rate = next(
             (r for r in existing_rates.data
              if r.fixed_amount.amount == SHIPPING_COST_INTERNATIONAL
@@ -183,7 +199,10 @@ def create_checkout_session(request):
                 display_name="International Shipping",
                 fixed_amount={"amount": SHIPPING_COST_INTERNATIONAL, "currency": "usd"},
                 type="fixed_amount",
-                delivery_estimate={"minimum": {"unit": "business_day", "value": 10}, "maximum": {"unit": "business_day", "value": 20}},
+                delivery_estimate={
+                    "minimum": {"unit": "business_day", "value": 10},
+                    "maximum": {"unit": "business_day", "value": 20}
+                },
                 tax_behavior="exclusive",
             )
 

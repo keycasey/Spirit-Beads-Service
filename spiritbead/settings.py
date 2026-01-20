@@ -32,7 +32,12 @@ DEBUG = os.getenv("DJANGO_DEBUG", "False").lower() in ("1", "true", "yes")
 
 ALLOWED_HOSTS = ['100.82.23.47', 'spirit-beads.keycasey.com', 'thebeadedcase.com', 'www.thebeadedcase.com', 'localhost']
 
-CSRF_TRUSTED_ORIGINS = ['https://spirit-beads.keycasey.com', 'http://localhost']
+CSRF_TRUSTED_ORIGINS = [
+    'https://spirit-beads.keycasey.com',
+    'http://localhost',
+    'https://thebeadedcase.com',
+    'https://www.thebeadedcase.com',
+]
 
 # Application definition
 

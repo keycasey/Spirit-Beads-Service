@@ -1,4 +1,5 @@
 import uuid
+import requests
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
@@ -10,6 +11,43 @@ from orders.models import Order, OrderItem
 from products.models import Product
 from decimal import Decimal
 import os
+
+def get_customer_country(request):
+    """
+    Detect customer country from IP address.
+    Falls back to US if detection fails.
+    """
+    # Check for Cloudflare country header first (if using Cloudflare)
+    cf_country = request.META.get('HTTP_CF_IPCOUNTRY')
+    if cf_country:
+        return cf_country
+
+    # Fall back to ipinfo.io API
+    try:
+        # Get client IP
+        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        if x_forwarded_for:
+            ip = x_forwarded_for.split(',')[0].strip()
+        else:
+            ip = request.META.get('REMOTE_ADDR')
+
+        # Get ipinfo token from env if available (optional, increases rate limits)
+        ipinfo_token = os.getenv('IPINFO_TOKEN')
+
+        # Build URL with or without token
+        if ipinfo_token:
+            url = f'https://ipinfo.io/{ip}?token={ipinfo_token}'
+        else:
+            url = f'https://ipinfo.io/{ip}'  # No token = lower rate limits
+
+        response = requests.get(url, timeout=2)
+        if response.status_code == 200:
+            data = response.json()
+            return data.get('country', 'US')  # Default to US if not found
+    except Exception as e:
+        print(f"Could not detect country from IP: {e}")
+
+    return 'US'  # Default to US
 
 @csrf_exempt
 @api_view(["POST"])
@@ -126,7 +164,11 @@ def create_checkout_session(request):
     # Remove trailing slash for consistent URL construction
     origin = origin.rstrip('/')
 
-    # Set up shipping options by region - create shipping rates inline
+    # Detect customer country from IP address
+    customer_country = get_customer_country(request)
+    print(f"Detected customer country: {customer_country}")
+
+    # Set up shipping option based on detected country
     SHIPPING_COST_USA = 500  # $5.00
     SHIPPING_COST_CANADA_MEXICO = 1500  # $15.00
     SHIPPING_COST_INTERNATIONAL = 2000  # $20.00
@@ -134,47 +176,49 @@ def create_checkout_session(request):
     shipping_options = []
 
     try:
-        # USA Shipping - $5.00
-        shipping_options.append({
-            "shipping_rate_data": {
-                "display_name": "USA Shipping",
-                "fixed_amount": {"amount": SHIPPING_COST_USA, "currency": "usd"},
-                "type": "fixed_amount",
-                "delivery_estimate": {
-                    "minimum": {"unit": "business_day", "value": 3},
-                    "maximum": {"unit": "business_day", "value": 5},
-                },
-                "tax_behavior": "exclusive",
-            }
-        })
-
-        # Canada/Mexico Shipping - $15.00
-        shipping_options.append({
-            "shipping_rate_data": {
-                "display_name": "Canada/Mexico Shipping",
-                "fixed_amount": {"amount": SHIPPING_COST_CANADA_MEXICO, "currency": "usd"},
-                "type": "fixed_amount",
-                "delivery_estimate": {
-                    "minimum": {"unit": "business_day", "value": 5},
-                    "maximum": {"unit": "business_day", "value": 10},
-                },
-                "tax_behavior": "exclusive",
-            }
-        })
-
-        # International Shipping - $20.00
-        shipping_options.append({
-            "shipping_rate_data": {
-                "display_name": "International Shipping",
-                "fixed_amount": {"amount": SHIPPING_COST_INTERNATIONAL, "currency": "usd"},
-                "type": "fixed_amount",
-                "delivery_estimate": {
-                    "minimum": {"unit": "business_day", "value": 10},
-                    "maximum": {"unit": "business_day", "value": 20},
-                },
-                "tax_behavior": "exclusive",
-            }
-        })
+        if customer_country == 'US':
+            # USA customer - show $5 shipping
+            shipping_options.append({
+                "shipping_rate_data": {
+                    "display_name": "USA Shipping (3-5 business days)",
+                    "fixed_amount": {"amount": SHIPPING_COST_USA, "currency": "usd"},
+                    "type": "fixed_amount",
+                    "delivery_estimate": {
+                        "minimum": {"unit": "business_day", "value": 3},
+                        "maximum": {"unit": "business_day", "value": 5},
+                    },
+                    "tax_behavior": "exclusive",
+                    "tax_code": "txcd_92010001",
+                }
+            })
+        elif customer_country in ['CA', 'MX']:
+            # Canada/Mexico customer - show $15 shipping
+            shipping_options.append({
+                "shipping_rate_data": {
+                    "display_name": "North America Shipping (5-10 business days)",
+                    "fixed_amount": {"amount": SHIPPING_COST_CANADA_MEXICO, "currency": "usd"},
+                    "type": "fixed_amount",
+                    "delivery_estimate": {
+                        "minimum": {"unit": "business_day", "value": 5},
+                        "maximum": {"unit": "business_day", "value": 10},
+                    },
+                    "tax_behavior": "exclusive",
+                }
+            })
+        else:
+            # International customer - show $20 shipping
+            shipping_options.append({
+                "shipping_rate_data": {
+                    "display_name": "International Shipping (10-20 business days)",
+                    "fixed_amount": {"amount": SHIPPING_COST_INTERNATIONAL, "currency": "usd"},
+                    "type": "fixed_amount",
+                    "delivery_estimate": {
+                        "minimum": {"unit": "business_day", "value": 10},
+                        "maximum": {"unit": "business_day", "value": 20},
+                    },
+                    "tax_behavior": "exclusive",
+                }
+            })
     except Exception as e:
         print(f"Warning: Could not create shipping options: {e}")
 

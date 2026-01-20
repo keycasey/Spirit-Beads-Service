@@ -182,7 +182,7 @@ def create_checkout_session(request):
             # USA customer - show $5 shipping
             shipping_options.append({
                 "shipping_rate_data": {
-                    "display_name": "USA Shipping (3-5 business days)",
+                    "display_name": "USA Shipping",
                     "fixed_amount": {"amount": SHIPPING_COST_USA, "currency": "usd"},
                     "type": "fixed_amount",
                     "delivery_estimate": {
@@ -197,7 +197,7 @@ def create_checkout_session(request):
             # Canada/Mexico customer - show $15 shipping
             shipping_options.append({
                 "shipping_rate_data": {
-                    "display_name": "North America Shipping (5-10 business days)",
+                    "display_name": "North America Shipping",
                     "fixed_amount": {"amount": SHIPPING_COST_CANADA_MEXICO, "currency": "usd"},
                     "type": "fixed_amount",
                     "delivery_estimate": {
@@ -211,7 +211,7 @@ def create_checkout_session(request):
             # International customer - show $20 shipping
             shipping_options.append({
                 "shipping_rate_data": {
-                    "display_name": "International Shipping (10-20 business days)",
+                    "display_name": "International Shipping",
                     "fixed_amount": {"amount": SHIPPING_COST_INTERNATIONAL, "currency": "usd"},
                     "type": "fixed_amount",
                     "delivery_estimate": {
